@@ -8,7 +8,7 @@ export default function Home() {
             <div className="hero">
                 <h1>SendBox에 오신것을 환영해요.</h1>
                 <p className="subtitle">
-                    안전하게 단대단 암호화 파일 및 텍스트, URL를 공유하세요.
+                    단대단 암호화로 파일, 텍스트, URL을 안전하게 공유해 보세요.
                 </p>
 
                 <div className="cta-buttons">

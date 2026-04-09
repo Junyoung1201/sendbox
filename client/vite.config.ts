@@ -3,6 +3,8 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig({
     plugins: [react()],
+    //@ts-ignore
+    base: process.env.NODE_ENV === 'development' ? './' : "/sendbox/",
     server: {
         port: 5819,
         proxy: {

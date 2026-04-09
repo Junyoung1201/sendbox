@@ -150,7 +150,7 @@ export async function deriveKeyFromPassword(
     
     return {
         key,
-        salt: btoa(String.fromCharCode(...salt)),
+        salt: btoa(String.fromCharCode(...(salt as Uint8Array))),
     };
 }
 
