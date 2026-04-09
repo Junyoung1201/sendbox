@@ -1,0 +1,106 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/*  스크롤바  */
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(30, 13, 54, 0.5);
+}
+
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%);
+    border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #8b5cf6 0%, #c4b5fd 100%);
+}
+
+body {
+    font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    background: linear-gradient(135deg, #0f0718 0%, #1a0b2e 50%, #2d1b4e 100%);
+    background-attachment: fixed;
+    color: #e9d5ff;
+    line-height: 1.6;
+    font-size: 16px;
+}
+
+.app {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.main-content {
+    flex: 1;
+    max-width: 1280px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 48px;
+}
+
+.page {
+    background: linear-gradient(135deg, rgba(30, 13, 54, 0.8) 0%, rgba(59, 7, 100, 0.6) 100%);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    padding: 48px;
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(107, 33, 168, 0.3);
+    border: 1px solid rgba(167, 139, 250, 0.2);
+}
+
+/* .page h1 {
+    margin-bottom: 32px;
+    color: #f5f3ff;
+    font-size: 40px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+} */
+
+/*  아래 저작권 문구, 포트폴리오 문구 넣는곳  */
+.footer {
+    background: rgba(30, 13, 54, 0.7);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    color: #c4b5fd;
+    text-align: center;
+    padding: 32px;
+    margin-top: auto;
+    border-top: 2px solid rgba(167, 139, 250, 0.2);
+    font-size: 16px;
+}
+
+.footer p {
+    margin: 0;
+}
+
+/*  반응형  */
+@media (max-width: 768px) {
+    .main-content {
+        padding: 32px 24px;
+    }
+
+    .page {
+        padding: 32px 24px;
+    }
+}

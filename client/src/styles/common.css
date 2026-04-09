@@ -1,0 +1,201 @@
+/*  버튼 공통  */
+.btn {
+    padding: 16px 40px;
+    border: none;
+    border-radius: 10px;
+    font-size: 18px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    display: inline-block;
+    letter-spacing: -0.01em;
+}
+
+/*  버튼 1  */
+.btn-primary {
+    background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%);
+    color: white;
+    box-shadow: 0 8px 20px rgba(124, 58, 237, 0.4);
+    border: 1px solid rgba(167, 139, 250, 0.3);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 28px rgba(124, 58, 237, 0.6);
+    background: linear-gradient(135deg, #8b5cf6 0%, #c4b5fd 100%);
+}
+
+.btn-primary:active {
+    transform: translateY(0);
+}
+
+.btn-primary:disabled {
+    background: linear-gradient(135deg, #4c1d95 0%, #5b21b6 100%);
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
+    opacity: 0.5;
+}
+
+/*  버튼 2  */
+.btn-secondary {
+    background: rgba(76, 29, 149, 0.3);
+    color: #f5f3ff;
+    border: 1.5px solid rgba(167, 139, 250, 0.3);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.btn-secondary:hover {
+    background: rgba(91, 33, 182, 0.4);
+    border-color: rgba(167, 139, 250, 0.5);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(124, 58, 237, 0.3);
+}
+
+/*  버튼 - 위험/삭제  */
+.btn-danger {
+    background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+    color: white;
+    box-shadow: 0 8px 20px rgba(220, 38, 38, 0.4);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.btn-danger:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 28px rgba(220, 38, 38, 0.6);
+    background: linear-gradient(135deg, #ef4444 0%, #f87171 100%);
+}
+
+.btn-danger:active {
+    transform: translateY(0);
+}
+
+/*  폼 기본  */
+.form-group {
+    margin-bottom: 28px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 12px;
+    font-weight: 500;
+    color: #f5f3ff;
+    font-size: 17px;
+    letter-spacing: -0.01em;
+}
+
+.form-group input,
+.form-group textarea {
+    resize: none;
+    width: 100%;
+    padding: 16px 20px;
+    border: 1.5px solid rgba(167, 139, 250, 0.3);
+    border-radius: 10px;
+    font-size: 17px;
+    font-family: inherit;
+    background: rgba(30, 13, 54, 0.5);
+    color: #f5f3ff;
+    transition: all 0.2s ease;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+    color: #a78bfa;
+    opacity: 0.6;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: #a78bfa;
+    box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.2), 0 0 20px rgba(124, 58, 237, 0.3);
+    background: rgba(59, 7, 100, 0.6);
+}
+
+.form-group input:disabled,
+.form-group textarea:disabled {
+    background: rgba(30, 13, 54, 0.3);
+    cursor: not-allowed;
+    border-color: rgba(167, 139, 250, 0.1);
+    opacity: 0.6;
+}
+
+/*  메세지 모음 */
+.error-message {
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.2) 0%, rgba(220, 38, 38, 0.15) 100%);
+    color: #fca5a5;
+    padding: 16px 20px;
+    border-radius: 10px;
+    margin-bottom: 24px;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    font-weight: 500;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.info-box {
+    background: linear-gradient(135deg, rgba(76, 29, 149, 0.3) 0%, rgba(91, 33, 182, 0.2) 100%);
+    padding: 20px 24px;
+    border-radius: 12px;
+    margin-top: 24px;
+    border: 1px solid rgba(167, 139, 250, 0.3);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.info-box h3 {
+    margin-bottom: 12px;
+    font-weight: 600;
+    color: #f5f3ff;
+    font-size: 18px;
+}
+
+.info-box p {
+    color: #c4b5fd;
+    line-height: 1.6;
+    font-size: 17px;
+}
+
+.info-box ul {
+    list-style: none;
+    padding-left: 0;
+}
+
+.info-box ul li {
+    padding: 6px 0 6px 24px;
+    position: relative;
+    color: #c4b5fd;
+    line-height: 1.6;
+    font-size: 17px;
+}
+
+.info-box ul li::before {
+    content: '•';
+    position: absolute;
+    left: 0;
+    color: #a78bfa;
+    font-weight: bold;
+    font-size: 24px;
+    line-height: 1;
+}
+
+.link-button {
+    background: none;
+    border: none;
+    color: #a78bfa;
+    cursor: pointer;
+    text-decoration: none;
+    font-size: inherit;
+    font-weight: 500;
+    transition: color 0.2s ease;
+}
+
+.link-button:hover {
+    color: #c4b5fd;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}

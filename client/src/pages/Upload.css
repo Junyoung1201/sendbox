@@ -1,0 +1,595 @@
+/*  파일 종류 (파일, 텍스트, URL) 선택 메뉴 관련  */
+.upload-type-selector {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 40px;
+}
+
+.upload-type-selector button {
+    flex: 1;
+    padding: 18px;
+    border: 1.5px solid rgba(167, 139, 250, 0.3);
+    background: rgba(30, 13, 54, 0.5);
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 17px;
+    color: #c4b5fd;
+    transition: all 0.2s ease;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.type-btn-icon {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+}
+
+.upload-type-selector button.active {
+    border-color: #a78bfa;
+    background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%);
+    color: white;
+    box-shadow: 0 8px 20px rgba(124, 58, 237, 0.4);
+}
+
+.upload-type-selector button:hover:not(.active):not(:disabled) {
+    border-color: rgba(167, 139, 250, 0.5);
+    background: rgba(59, 7, 100, 0.6);
+}
+
+.upload-type-selector button:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+    color: rgba(196, 181, 253, 0.4);
+    border-color: rgba(167, 139, 250, 0.1);
+    background: rgba(30, 13, 54, 0.3);
+    transform: none;
+    box-shadow: none;
+}
+
+/*  파일 선택하면 정보 나오는거  */
+.file-info {
+    margin-top: 12px;
+    color: #c4b5fd;
+    font-size: 16px;
+}
+
+/*  파일 업로드 영역  */
+.file-upload-area {
+    position: relative;
+}
+
+.file-input-hidden {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+    pointer-events: none;
+}
+
+.file-upload-label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 300px;
+    padding: 48px 32px;
+    border: 2px dashed rgba(167, 139, 250, 0.4);
+    border-radius: 12px;
+    background: linear-gradient(135deg, rgba(59, 7, 100, 0.3) 0%, rgba(76, 29, 149, 0.2) 100%);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.file-upload-label:hover {
+    border-color: rgba(167, 139, 250, 0.7);
+    background: linear-gradient(135deg, rgba(76, 29, 149, 0.4) 0%, rgba(91, 33, 182, 0.3) 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(124, 58, 237, 0.3);
+}
+
+.upload-icon {
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
+
+    width: 90px;
+    height: 90px;
+    
+    color: #a78bfa;
+    margin-bottom: 20px;
+    filter: drop-shadow(0 0 8px rgba(167, 139, 250, 0.5));
+    transition: all 0.3s ease;
+}
+
+.file-upload-label:hover .upload-icon {
+    transform: translate(-50%,-4px);
+    color: #c4b5fd;
+}
+
+.upload-text {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    text-align: center;
+}
+
+.upload-text strong {
+    font-size: 20px;
+    color: #f5f3ff;
+    font-weight: 600;
+}
+
+.upload-text small {
+    font-size: 18px;
+    color: #c4b5fd;
+    font-weight: 400;
+}
+
+.file-input-hidden:disabled+.file-upload-label {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.file-input-hidden:disabled+.file-upload-label:hover {
+    transform: none;
+    box-shadow: none;
+}
+
+.file-upload-label:has(+ .file-selected),
+.file-upload-label.file-selected {
+    border-color: rgba(167, 243, 208, 0.5);
+    background: linear-gradient(135deg, rgba(34, 197, 94, 0.15) 0%, rgba(16, 185, 129, 0.1) 100%);
+}
+
+.file-upload-label:has(+ .file-selected) .upload-icon,
+.file-upload-label.file-selected .upload-icon {
+    color: #a7f3d0;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 8px;
+    background: rgba(30, 13, 54, 0.6);
+    border-radius: 999px;
+    overflow: hidden;
+    position: relative;
+    margin-bottom: 24px;
+    border: 1px solid rgba(167, 139, 250, 0.2);
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #7c3aed 0%, #a78bfa 100%);
+    transition: width 0.3s ease;
+    border-radius: 999px;
+    box-shadow: 0 0 20px rgba(167, 139, 250, 0.6);
+}
+
+.upload-action-row {
+    display: flex;
+    gap: 12px;
+    width: 100%;
+}
+
+.upload-submit-btn {
+    flex: 1;
+}
+
+.upload-cancel-btn {
+    flex: 1;
+    white-space: nowrap;
+}
+
+/*  업로드 중 파일 선택 영역 플레이스홀더  */
+.uploading-placeholder-panel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    min-height: 300px;
+    border: 2px dashed rgba(167, 139, 250, 0.3);
+    border-radius: 12px;
+    background: linear-gradient(135deg, rgba(59, 7, 100, 0.3) 0%, rgba(76, 29, 149, 0.2) 100%);
+}
+
+.uploading-spinner {
+    width: 52px;
+    height: 52px;
+    border: 3px solid rgba(167, 139, 250, 0.2);
+    border-top-color: #a78bfa;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.uploading-placeholder-text {
+    color: #c4b5fd;
+    font-size: 18px;
+    font-weight: 500;
+}
+
+.cancel-share-btn {
+    width: 100%;
+    margin-top: 8px;
+}
+
+.result-box {
+    background: linear-gradient(135deg, rgba(34, 197, 94, 0.15) 0%, rgba(16, 185, 129, 0.1) 100%);
+    padding: 32px;
+    border-radius: 16px;
+    margin-bottom: 24px;
+    border: 1px solid rgba(167, 243, 208, 0.3);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.result-box h3 {
+    margin-bottom: 24px;
+    color: #a7f3d0;
+    font-weight: 600;
+    font-size: 22px;
+}
+
+.file-key {
+    margin: 24px 0;
+}
+
+.key-display {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    align-items: center;
+    padding: 20px 0;
+    padding-top: 0;
+}
+
+.key-display .key-digit {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 72px;
+    font-size: 40px;
+    font-weight: 700;
+    color: #f5f3ff;
+    background: rgba(30, 13, 54, 0.4);
+    border: 2px solid rgba(167, 139, 250, 0.4);
+    border-bottom: 4px solid #a78bfa;
+    border-radius: 8px;
+    font-variant-numeric: tabular-nums;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), inset 0 -2px 8px rgba(167, 139, 250, 0.2);
+    transition: all 0.2s ease;
+}
+
+.key-display .key-digit:hover {
+    transform: translateY(-2px);
+    border-bottom-color: #c4b5fd;
+    box-shadow: 0 6px 16px rgba(124, 58, 237, 0.4), inset 0 -2px 8px rgba(167, 139, 250, 0.3);
+}
+
+.file-key {
+    margin: 24px 0;
+    transition: all 0.2s ease;
+}
+
+.file-key.clickable {
+    cursor: pointer;
+    padding: 16px;
+    border-radius: 12px;
+}
+
+.file-key.clickable:hover {
+    background: rgba(167, 139, 250, 0.08);
+}
+
+.file-key label {
+    transition: color 0.2s ease;
+}
+
+.expires-info {
+    color: #c4b5fd;
+    font-size: 16px;
+    margin-top: 16px;
+}
+
+.share-info {
+    font-weight: 500;
+    margin-top: 16px;
+    color: #ddd6fe;
+    font-size: 17px;
+}
+
+/*  업로드 완료 후 파일 선택 자리에 표시되는 패널  */
+.upload-result-panel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+    min-height: 300px;
+    padding: 40px 32px;
+    border: 2px solid rgba(167, 243, 208, 0.4);
+    border-radius: 12px;
+    background: linear-gradient(135deg, rgba(34, 197, 94, 0.12) 0%, rgba(16, 185, 129, 0.08) 100%);
+    text-align: center;
+}
+
+/*  텍스트/URL 업로드 완료 시 폼을 가리는 오버레이 패널  */
+.text-url-result-overlay {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+    min-height: 400px;
+    padding: 40px 32px;
+    border: 2px solid rgba(167, 243, 208, 0.4);
+    border-radius: 12px;
+    background: linear-gradient(135deg, rgba(34, 197, 94, 0.12) 0%, rgba(16, 185, 129, 0.08) 100%);
+    text-align: center;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.text-url-result-overlay .result-title {
+    font-size: 22px;
+    font-weight: 600;
+    color: #a7f3d0;
+    margin: 0;
+}
+
+.text-url-result-overlay .expires-info {
+    color: #c4b5fd;
+    font-size: 16px;
+    margin: 8px 0;
+}
+
+.text-url-result-overlay .share-info {
+    font-weight: 500;
+    color: #ddd6fe;
+    font-size: 17px;
+    margin: 8px 0;
+}
+
+.result-key-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    transition: all 0.2s ease;
+}
+
+.result-key-section.clickable {
+    cursor: pointer;
+    padding: 16px;
+    border-radius: 12px;
+}
+
+.result-key-section.clickable:hover {
+    background: rgba(167, 243, 208, 0.1);
+}
+
+.result-key-section label {
+    font-size: 14px;
+    color: #a7f3d0;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: color 0.2s ease;
+}
+
+.result-key-section .key-display {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    align-items: center;
+    margin: 0;
+}
+
+/*  다운로드 키 숫자  */
+.key-digit {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 72px;
+    font-size: 40px;
+    font-weight: 700;
+    color: #f5f3ff;
+    background: rgba(30, 13, 54, 0.4);
+    border: 2px solid rgba(167, 139, 250, 0.4);
+    border-bottom: 4px solid #a78bfa;
+    border-radius: 8px;
+    font-variant-numeric: tabular-nums;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), inset 0 -2px 8px rgba(167, 139, 250, 0.2);
+    transition: all 0.2s ease;
+}
+
+.key-digit:hover {
+    transform: translateY(-2px);
+    border-bottom-color: #c4b5fd;
+    box-shadow: 0 6px 16px rgba(124, 58, 237, 0.4), inset 0 -2px 8px rgba(167, 139, 250, 0.3);
+}
+
+.peer-download-status {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    min-height: 80px;
+}
+
+.peer-progress-bar {
+    margin-bottom: 0;
+}
+
+.peer-download-text {
+    font-size: 15px;
+    color: #c4b5fd;
+    font-weight: 500;
+}
+
+.waiting-text {
+    font-size: 15px;
+    color: #a78bfa;
+    opacity: 0.8;
+}
+
+/*  다운로드 완료 패널  */
+.download-complete-panel {
+    position: relative;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    text-align: center;
+    width: 100%;
+}
+
+.check-icon {
+    width: 56px;
+    height: 56px;
+    color: #a7f3d0;
+    filter: drop-shadow(0 0 8px rgba(167, 243, 208, 0.5));
+}
+
+.download-complete-text {
+    font-size: 18px;
+    font-weight: 600;
+    color: #a7f3d0;
+}
+
+/*  다운로드 완료 후 "닫기" 버튼  */
+button.download-complete-close-btn {
+    margin-top: 24px;
+    height: 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+
+/*  드래그 앤 드롭  */
+.upload-page {
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.upload-page::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border: 4px dashed rgba(167, 139, 250, 0);
+    border-radius: 16px;
+    pointer-events: none;
+    transition: all 0.3s ease;
+    z-index: 10;
+    background: rgba(124, 58, 237, 0);
+}
+
+.upload-page::after {
+    content: '파일을 여기에 드롭하세요';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 24px;
+    font-weight: 600;
+    color: #f5f3ff;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.3s ease;
+    z-index: 11;
+    text-shadow: 0 0 20px rgba(167, 139, 250, 0.8);
+    white-space: nowrap;
+}
+
+.upload-page:has([data-drag-active="true"])::before,
+.upload-page[data-drag-active="true"]::before {
+    border-color: rgba(167, 139, 250, 0.9);
+    background: rgba(124, 58, 237, 0.25);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    box-shadow: inset 0 0 60px rgba(167, 139, 250, 0.3);
+}
+
+.upload-page:has([data-drag-active="true"])::after,
+.upload-page[data-drag-active="true"]::after {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.05);
+}
+
+/*  반응형  */
+@media (max-width: 768px) {
+    .upload-type-selector {
+        gap: 10px;
+    }
+
+    .upload-type-selector button {
+        padding: 14px;
+    }
+
+    .type-btn-label {
+        display: none;
+    }
+
+    .type-btn-icon {
+        width: 26px;
+        height: 26px;
+    }
+
+    .file-upload-label {
+        padding: 32px 24px;
+    }
+
+    .upload-icon {
+        width: 40px;
+        height: 40px;
+    }
+
+    .upload-text strong {
+        font-size: 16px;
+    }
+
+    .upload-text small {
+        font-size: 14px;
+    }
+
+    .upload-page::after {
+        font-size: 18px;
+    }
+
+    .key-display {
+        gap: 8px;
+    }
+
+    .key-digit,
+    .key-display .key-digit {
+        width: 44px;
+        height: 60px;
+        font-size: 32px;
+        border-bottom-width: 3px;
+    }
+}

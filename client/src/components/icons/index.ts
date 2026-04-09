@@ -1,0 +1,9 @@
+export { default as ShieldCheckIcon } from './ShieldCheckIcon';
+export { default as CloudUploadIcon } from './CloudUploadIcon';
+export { default as LightningIcon } from './LightningIcon';
+export { default as ClockIcon } from './ClockIcon';
+export { default as InfoIcon } from './InfoIcon';
+export { default as CopyIcon } from './CopyIcon';
+export { default as FileIcon } from './FileIcon';
+export { default as TextIcon } from './TextIcon';
+export { default as LinkIcon } from './LinkIcon';
