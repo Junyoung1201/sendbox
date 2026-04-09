@@ -5,8 +5,16 @@ import {
     decryptText,
     decryptFileChunksStreaming,
 } from '../utils/crypto';
+import { registerAsDownloader } from '../utils/socket';
 import streamSaver from 'streamsaver';
 import './Download.css';
+
+//  
+//  [TODO]
+//  이거 모바일에서는 mitm.html이 안되는건지 stream saver가 작동 안해서
+//  청크 방식으로 다운로드 받으면 버그 걸려서 다운로드 멈추고 양쪽에서 무한로딩 걸리는 버그있음.
+//  
+//
 
 export default function Download() {
     const [fileKey, setFileKey] = useState('');
@@ -26,7 +34,7 @@ export default function Download() {
     useEffect(() => {
         
         // StreamSaver 설정
-        streamSaver.mitm = '/mitm.html';
+        streamSaver.mitm = import.meta.env.BASE_URL + 'mitm.html';
         
         const hash = window.location.hash.substring(1); // # 제거
 
@@ -57,7 +65,7 @@ export default function Download() {
         setLoading(true);
 
         try {
-            // 서버에서 데이터 가져오기 (암호 선택적)
+            // 서버에서 데이터 가져오기
             const response = await fileAPI.download(fileKey, password);
 
             // 텍스트나 URL일 경우
@@ -102,6 +110,9 @@ export default function Download() {
             else if (response.data.type === 'file') {
 
                 const { fileName, totalChunks, isEncrypted, iv, salt, fileKey: key } = response.data;
+
+                // 다운로더로 소켓 등록 (업로더에게 진행 상황 알림)
+                registerAsDownloader(key);
                 
                 // StreamSaver로 파일 스트림 생성
                 const fileStream = streamSaver.createWriteStream(fileName || 'download');
@@ -195,14 +206,14 @@ export default function Download() {
                 </div>
 
                 <div className="form-group">
-                    <label htmlFor="password-input">암호 입력 (암호화된 파일인 경우에만)</label>
+                    <label htmlFor="password-input">암호 입력 (암호화된 경우에만)</label>
                     <input
                         id="password-input"
                         type="password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         disabled={loading}
-                        placeholder="업로드시 설정한 암호 (선택사항)"
+                        placeholder="암호를 입력해주세요. (선택사항)"
                     />
                 </div>
 
@@ -280,11 +291,11 @@ export default function Download() {
                 )}
 
                 <button type="submit" className="btn btn-primary" disabled={loading}>
-                    {loading ? '다운로드/복호화 중..' : '다운로드 및 복호화'}
+                    {loading ? '다운로드 중..' : '다운로드'}
                 </button>
             </form>
 
-            <div className="info-box">
+            {/* <div className="info-box">
                 <h3>E2E 암호화 정보</h3>
                 <ul>
                     <li>모든 데이터는 서버로 전송되기 전에 브라우저에서 암호화됩니다.</li>
@@ -293,7 +304,7 @@ export default function Download() {
                     <li>파일은 다운로드 후 삭제됩니다.</li>
                     <li>파일이 다운로드되지 않으면 12시간 후 만료됩니다.</li>
                 </ul>
-            </div>
+            </div> */}
         </div>
     );
 }
