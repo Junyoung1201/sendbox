@@ -61,8 +61,10 @@ export function optionalAuthMiddleware(
                     if (result.rows.length > 0) {
                         req.user = decoded;
                     }
+
                     // 존재하지 않으면 비로그인으로 처리 (req.user 미설정)
                     next();
+                    
                 })
                 .catch(() => {
                     next();

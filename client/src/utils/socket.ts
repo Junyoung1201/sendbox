@@ -72,7 +72,8 @@ export const subscribeToFileEvents = (
         fileName?: string;
         fileType: string;
         downloadedAt: string;
-    }) => void
+    }) => void,
+    onInterrupted?: (data: { fileKey: string }) => void
 ) => {
     const s = getSocket();
 
@@ -82,12 +83,24 @@ export const subscribeToFileEvents = (
         onProgress(data.progress);
     };
 
+    const interruptedHandler = (data: { fileKey: string }) => {
+        onInterrupted?.(data);
+    };
+
     s.on('file-download-progress', progressHandler);
     s.on('file-downloaded', onComplete);
+    s.on('download-interrupted', interruptedHandler);
 
     return () => {
         s.off('file-download-progress', progressHandler);
         s.off('file-downloaded', onComplete);
+        s.off('download-interrupted', interruptedHandler);
         s.emit('leave-file-room', fileKey);
     };
+};
+
+// 다운로더 등록 (다운로드 시작 시 호출)
+export const registerAsDownloader = (fileKey: string) => {
+    const s = getSocket();
+    s.emit('register-downloader', fileKey);
 };

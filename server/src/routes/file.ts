@@ -9,12 +9,18 @@ import { generateUniqueFileKey } from '../utils/fileKeyGenerator';
 import { AuthRequest } from '../types';
 import { Envs, Strings, FileConstants } from '../constants';
 import { io } from '../index';
+import { downloaderSockets } from '../index';
 
 const router = express.Router();
 
-const MAX_FILE_SIZE_FREE = parseInt(process.env.MAX_FILE_SIZE_FREE || '2147483648'); // 2GB
-const MAX_FILE_SIZE_LOGGED_IN = parseInt(process.env.MAX_FILE_SIZE_LOGGED_IN || '107374182400'); // 100GB
-const MAX_STORAGE_PER_IP = parseInt(process.env.MAX_STORAGE_PER_IP || '107374182400'); // 100GB
+// 비로그인 최대 파일 업로드 사이즈 (2GB)
+const MAX_FILE_SIZE_FREE = parseInt(process.env.MAX_FILE_SIZE_FREE || '2147483648');
+
+// 로그인 시 최대 파일 업로드 사이즈 (100GB)
+const MAX_FILE_SIZE_LOGGED_IN = parseInt(process.env.MAX_FILE_SIZE_LOGGED_IN || '107374182400');
+
+// 한 아이피 당 최대 파일 업로드 사이즈 (100GB)
+const MAX_STORAGE_PER_IP = parseInt(process.env.MAX_STORAGE_PER_IP || '107374182400');
 
 ////////////// multer 관련 - 디스크 저장 (암호화된 청크를 디스크에 저장)
 const storage = multer.diskStorage({
@@ -141,10 +147,22 @@ router.post('/init-upload', optionalAuthMiddleware, async (req: AuthRequest, res
         // 파일 메타데이터 저장
         const result = await pool.query(`
             INSERT INTO files (
-                file_key, file_type, file_name, file_size, total_chunks, 
-                iv, password_hash, salt, is_encrypted, uploader_ip, uploader_user_id, 
-                expires_at, upload_completed
-            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+                file_key,          -- 1
+                file_type,         -- 2
+                file_name,         -- 3
+                file_size,         -- 4
+                total_chunks,      -- 5
+                iv,                -- 6
+                password_hash,     -- 7
+                salt,              -- 8
+                is_encrypted,      -- 9
+                uploader_ip,       -- 10
+                uploader_user_id,  -- 11
+                expires_at,        -- 12
+                upload_completed   -- 13
+            ) VALUES (
+                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13
+            )
             RETURNING id
         `, [
             fileKey, 'file', fileName, originalSize, chunks,
@@ -186,9 +204,13 @@ router.post('/upload-chunk', optionalAuthMiddleware, upload.single('chunk'), han
 
         // 파일 메타데이터 확인
         const fileResult = await pool.query(`
-            SELECT id, total_chunks, upload_completed 
-            FROM files 
-            WHERE id = $1 AND deleted_at IS NULL
+            SELECT 
+                id, total_chunks, upload_completed 
+            FROM 
+                files 
+            WHERE 
+                id = $1 AND 
+                deleted_at IS NULL
         `, [parsedFileId]);
 
         if (fileResult.rows.length === 0) {
@@ -210,10 +232,15 @@ router.post('/upload-chunk', optionalAuthMiddleware, upload.single('chunk'), han
 
         // 청크 정보 저장
         await pool.query(`
-            INSERT INTO file_chunks (file_id, chunk_index, chunk_size, chunk_path)
-            VALUES ($1, $2, $3, $4)
-            ON CONFLICT (file_id, chunk_index) 
-            DO UPDATE SET chunk_size = $3, chunk_path = $4
+            INSERT INTO 
+                file_chunks (file_id, chunk_index, chunk_size, chunk_path)
+            VALUES 
+                ($1, $2, $3, $4)
+            ON CONFLICT 
+                (file_id, chunk_index) 
+            DO UPDATE SET 
+                chunk_size = $3,
+                chunk_path = $4
         `, [parsedFileId, parsedChunkIndex, file.size, file.path]);
 
         res.json({
@@ -244,9 +271,13 @@ router.post('/complete-upload', optionalAuthMiddleware, async (req: AuthRequest,
 
         // 파일 정보 조회
         const fileResult = await pool.query(`
-            SELECT id, file_size, total_chunks, uploader_ip 
-            FROM files 
-            WHERE id = $1 AND deleted_at IS NULL
+            SELECT 
+                id, file_size, total_chunks, uploader_ip 
+            FROM 
+                files 
+            WHERE 
+                id = $1 AND 
+                deleted_at IS NULL
         `, [parsedFileId]);
 
         if (fileResult.rows.length === 0) {
@@ -258,9 +289,12 @@ router.post('/complete-upload', optionalAuthMiddleware, async (req: AuthRequest,
 
         // 모든 청크가 업로드되었는지 확인
         const chunkResult = await pool.query(`
-            SELECT COUNT(*) as count 
-            FROM file_chunks 
-            WHERE file_id = $1
+            SELECT 
+                COUNT(*) as count 
+            FROM 
+                file_chunks 
+            WHERE 
+                file_id = $1
         `, [parsedFileId]);
 
         const uploadedChunks = parseInt(chunkResult.rows[0].count);
@@ -276,26 +310,40 @@ router.post('/complete-upload', optionalAuthMiddleware, async (req: AuthRequest,
 
         // 업로드 완료 표시
         await pool.query(`
-            UPDATE files 
-            SET upload_completed = TRUE 
-            WHERE id = $1
+            UPDATE
+                files 
+            SET 
+                upload_completed = TRUE 
+            WHERE 
+                id = $1
         `, [parsedFileId]);
 
         // IP당 업로드 총량 반영
         const ipStorageResult = await pool.query(`
-            SELECT total_storage FROM ip_storage WHERE ip_address = $1
+            SELECT
+                total_storage 
+            FROM
+                ip_storage 
+            WHERE 
+                ip_address = $1
         `, [clientIP]);
 
         if (ipStorageResult.rows.length > 0) {
             await pool.query(`
-                UPDATE ip_storage
-                SET total_storage = total_storage + $1, last_updated = NOW()
-                WHERE ip_address = $2
+                UPDATE 
+                    ip_storage
+                SET 
+                    total_storage = total_storage + $1, 
+                    last_updated = NOW()
+                WHERE
+                    ip_address = $2
             `, [fileRecord.file_size, clientIP]);
         } else {
             await pool.query(`
-                INSERT INTO ip_storage (ip_address, total_storage)
-                VALUES ($1, $2)
+                INSERT INTO 
+                    ip_storage (ip_address, total_storage)
+                VALUES 
+                    ($1, $2)
             `, [clientIP, fileRecord.file_size]);
         }
 
@@ -325,9 +373,13 @@ router.post('/cancel-upload', optionalAuthMiddleware, async (req: AuthRequest, r
 
         // 파일 정보 조회
         const fileResult = await pool.query(`
-            SELECT id, upload_completed
-            FROM files
-            WHERE id = $1 AND deleted_at IS NULL
+            SELECT 
+                id, upload_completed
+            FROM 
+                files
+            WHERE 
+                id = $1 AND 
+                deleted_at IS NULL
         `, [parsedFileId]);
 
         if (fileResult.rows.length === 0) {
@@ -345,9 +397,12 @@ router.post('/cancel-upload', optionalAuthMiddleware, async (req: AuthRequest, r
 
         // 업로드된 청크 파일들 조회 및 삭제
         const chunkResult = await pool.query(`
-            SELECT chunk_path
-            FROM file_chunks
-            WHERE file_id = $1
+            SELECT 
+                chunk_path
+            FROM 
+                file_chunks
+            WHERE 
+                file_id = $1
         `, [parsedFileId]);
 
         // 디스크에서 청크 파일들 삭제
@@ -361,14 +416,18 @@ router.post('/cancel-upload', optionalAuthMiddleware, async (req: AuthRequest, r
 
         // DB에서 청크 레코드 삭제
         await pool.query(`
-            DELETE FROM file_chunks
-            WHERE file_id = $1
+            DELETE FROM 
+                file_chunks
+            WHERE 
+                file_id = $1
         `, [parsedFileId]);
 
         // DB에서 파일 레코드 삭제
         await pool.query(`
-            DELETE FROM files
-            WHERE id = $1
+            DELETE FROM 
+                files
+            WHERE 
+                id = $1
         `, [parsedFileId]);
 
         res.json({
@@ -394,9 +453,14 @@ router.delete('/cancel-share/:key', optionalAuthMiddleware, async (req: AuthRequ
         }
 
         const fileResult = await pool.query(`
-            SELECT id, file_type, file_size, uploader_ip, upload_completed
-            FROM files
-            WHERE file_key = $1 AND deleted_at IS NULL AND is_downloaded = FALSE
+            SELECT 
+                id, file_type, file_size, uploader_ip, upload_completed
+            FROM 
+                files
+            WHERE 
+                file_key = $1 AND 
+                deleted_at IS NULL AND 
+                is_downloaded = FALSE
         `, [key]);
 
         if (fileResult.rows.length === 0) {
@@ -409,7 +473,12 @@ router.delete('/cancel-share/:key', optionalAuthMiddleware, async (req: AuthRequ
         // 파일 타입인 경우 청크 파일 삭제
         if (fileRecord.file_type === 'file') {
             const chunkResult = await pool.query(`
-                SELECT chunk_path FROM file_chunks WHERE file_id = $1
+                SELECT 
+                    chunk_path 
+                FROM 
+                    file_chunks 
+                WHERE 
+                    file_id = $1
             `, [fileRecord.id]);
 
             for (const chunk of chunkResult.rows) {
@@ -425,16 +494,26 @@ router.delete('/cancel-share/:key', optionalAuthMiddleware, async (req: AuthRequ
             // 업로드 완료된 파일이면 IP 스토리지에서 차감
             if (fileRecord.upload_completed) {
                 await pool.query(`
-                    UPDATE ip_storage
-                    SET total_storage = GREATEST(0, total_storage - $1), last_updated = NOW()
-                    WHERE ip_address = $2
+                    UPDATE 
+                        ip_storage
+                    SET 
+                        total_storage = GREATEST(0, total_storage - $1), 
+                        last_updated = NOW()
+                    WHERE 
+                        ip_address = $2
                 `, [fileRecord.file_size, fileRecord.uploader_ip]);
             }
         }
 
-        await pool.query(`DELETE FROM files WHERE id = $1`, [fileRecord.id]);
+        await pool.query(`
+            DELETE FROM 
+                files 
+            WHERE 
+                id = $1
+        `, [fileRecord.id]);
 
         res.json({ success: true, message: '공유가 중단되었습니다' });
+
     } catch (error) {
         console.error('공유 중단 실패:', error);
         res.status(500).json({ error: Strings.INTERNAL_SERVER_ERROR });
@@ -686,9 +765,14 @@ router.get('/download-chunk/:key/:chunkIndex', async (req, res: Response) => {
 
         // 파일 레코드 조회
         const fileResult = await pool.query(`
-            SELECT id, file_type, total_chunks, upload_completed
-            FROM files
-            WHERE file_key = $1 AND deleted_at IS NULL AND expires_at > NOW()
+            SELECT
+                id, file_type, total_chunks, upload_completed
+            FROM 
+                files
+            WHERE 
+                file_key = $1 AND 
+                deleted_at IS NULL AND 
+                expires_at > NOW()
         `, [key]);
 
         if (fileResult.rows.length === 0) {
@@ -715,9 +799,13 @@ router.get('/download-chunk/:key/:chunkIndex', async (req, res: Response) => {
 
         // 청크 정보 조회
         const chunkResult = await pool.query(`
-            SELECT chunk_path, chunk_size
-            FROM file_chunks
-            WHERE file_id = $1 AND chunk_index = $2
+            SELECT
+                chunk_path, chunk_size
+            FROM 
+                file_chunks
+            WHERE 
+                file_id = $1 AND
+                chunk_index = $2
         `, [fileRecord.id, parsedChunkIndex]);
 
         if (chunkResult.rows.length === 0) {
@@ -780,9 +868,13 @@ router.post('/complete-download/:key', async (req, res: Response) => {
 
         // 파일 레코드 조회
         const fileResult = await pool.query(`
-            SELECT id, file_name, file_size, file_type, uploader_ip
-            FROM files
-            WHERE file_key = $1 AND deleted_at IS NULL
+            SELECT
+                id, file_name, file_size, file_type, uploader_ip
+            FROM 
+                files
+            WHERE 
+                file_key = $1 AND
+                deleted_at IS NULL
         `, [key]);
 
         if (fileResult.rows.length === 0) {
@@ -795,7 +887,12 @@ router.post('/complete-download/:key', async (req, res: Response) => {
         // 파일 타입인 경우 청크 파일들을 디스크에서 삭제
         if (fileRecord.file_type === 'file') {
             const chunkResult = await pool.query(`
-                SELECT chunk_path FROM file_chunks WHERE file_id = $1
+                SELECT
+                    chunk_path
+                FROM 
+                    file_chunks 
+                WHERE 
+                    file_id = $1
             `, [fileRecord.id]);
 
             for (const chunk of chunkResult.rows) {
@@ -809,25 +906,42 @@ router.post('/complete-download/:key', async (req, res: Response) => {
 
             // 청크 레코드 삭제
             await pool.query(`
-                DELETE FROM file_chunks WHERE file_id = $1
+                DELETE FROM 
+                    file_chunks 
+                WHERE 
+                    file_id = $1
             `, [fileRecord.id]);
         }
 
         // 다운로드 완료 처리
         await pool.query(`
-            UPDATE files 
-            SET is_downloaded = TRUE, deleted_at = NOW() 
-            WHERE id = $1
+            UPDATE 
+                files 
+            SET 
+                is_downloaded = TRUE, 
+                deleted_at = NOW() 
+            WHERE 
+                id = $1
         `, [fileRecord.id]);
 
         // IP당 업로드 총량 차감
         await pool.query(`
-            UPDATE ip_storage
-            SET total_storage = GREATEST(total_storage - $1, 0), last_updated = NOW()
-            WHERE ip_address = $2
+            UPDATE
+                ip_storage
+            SET 
+                total_storage = GREATEST(total_storage - $1, 0), 
+                last_updated = NOW()
+            WHERE 
+                ip_address = $2
         `, [fileRecord.file_size, fileRecord.uploader_ip]);
 
-        // Socket.IO로 업로더에게 다운로드 알림
+        /////
+        ///// 업로더한테 다운로드 완료 알림
+        /////
+
+        // 다운로더 소켓 등록 해제
+        downloaderSockets.delete(key);
+        
         io.to(`file-${key}`).emit('file-downloaded', {
             fileKey: key,
             fileName: fileRecord.file_name,

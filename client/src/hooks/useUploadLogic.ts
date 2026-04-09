@@ -32,6 +32,7 @@ export function useUploadLogic() {
     const [error, setError] = useState<string | null>(null);
     const [peerDownloadProgress, setPeerDownloadProgress] = useState(0);
     const [peerDownloadComplete, setPeerDownloadComplete] = useState(false);
+    const [peerDownloadInterrupted, setPeerDownloadInterrupted] = useState(false);
     const [keyCopied, setKeyCopied] = useState(false);
     const [currentFileId, setCurrentFileId] = useState<number | null>(null);
     const [uploadAbortController, setUploadAbortController] = useState<AbortController | null>(null);
@@ -44,6 +45,13 @@ export function useUploadLogic() {
             (data) => {
                 console.log('파일 다운로드됨:', data);
                 setPeerDownloadComplete(true);
+                setPeerDownloadInterrupted(false);
+            },
+            () => {
+                // 이미 완료된 경우 무시
+                if (!peerDownloadComplete) {
+                    setPeerDownloadInterrupted(true);
+                }
             }
         );
         return () => unsubscribe();
@@ -80,10 +88,16 @@ export function useUploadLogic() {
         setFile(null);
         setPeerDownloadProgress(0);
         setPeerDownloadComplete(false);
+        setPeerDownloadInterrupted(false);
         setKeyCopied(false);
         setError(null);
         setCurrentFileId(null);
         setUploadAbortController(null);
+    };
+
+    const handleDownloadInterruptedClose = () => {
+        setPeerDownloadInterrupted(false);
+        setPeerDownloadProgress(0);
     };
 
     const handleCancelUpload = async () => {
@@ -209,7 +223,7 @@ export function useUploadLogic() {
                     return;
                 }
 
-                const CHUNK_SIZE = 500 * 1024 * 1024; // 500MB
+                const CHUNK_SIZE = 90 * 1024 * 1024; // 90MB (Cloudflare 무료 플랜 100MB 제한 고려)
                 const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
 
                 if (isEncrypted && encryptionKey) {
@@ -374,8 +388,10 @@ export function useUploadLogic() {
         error,
         peerDownloadProgress,
         peerDownloadComplete,
+        peerDownloadInterrupted,
         keyCopied,
         handleClose,
+        handleDownloadInterruptedClose,
         handleCancelUpload,
         handleCancelShare,
         handleCopyKey,

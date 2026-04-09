@@ -408,6 +408,24 @@
     filter: drop-shadow(0 0 8px rgba(167, 243, 208, 0.4));
 }
 
+.m-interrupted-icon {
+    width: 52px;
+    height: 52px;
+    color: #fca5a5;
+    filter: drop-shadow(0 0 8px rgba(252, 165, 165, 0.4));
+}
+
+.m-interrupted-title {
+    font-size: 17px;
+    font-weight: 600;
+    color: #fca5a5;
+}
+
+.m-result:has(.m-interrupted-icon) {
+    border-color: rgba(252, 165, 165, 0.35);
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.12) 0%, rgba(220, 38, 38, 0.08) 100%);
+}
+
 /*  폼  */
 .m-form {
     display: flex;

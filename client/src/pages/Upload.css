@@ -478,6 +478,40 @@
     color: #a7f3d0;
 }
 
+/*  다운로드 중단 패널  */
+.download-interrupted-panel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    text-align: center;
+    width: 100%;
+}
+
+.interrupted-icon {
+    width: 56px;
+    height: 56px;
+    color: #fca5a5;
+    filter: drop-shadow(0 0 8px rgba(252, 165, 165, 0.5));
+}
+
+.interrupted-text {
+    font-size: 18px;
+    font-weight: 600;
+    color: #fca5a5;
+}
+
+.upload-result-panel:has(.download-interrupted-panel) {
+    border-color: rgba(252, 165, 165, 0.4);
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.12) 0%, rgba(220, 38, 38, 0.08) 100%);
+}
+
+.text-url-result-overlay:has(.download-interrupted-panel) {
+    border-color: rgba(252, 165, 165, 0.4);
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.12) 0%, rgba(220, 38, 38, 0.08) 100%);
+}
+
 /*  다운로드 완료 후 "닫기" 버튼  */
 button.download-complete-close-btn {
     margin-top: 24px;

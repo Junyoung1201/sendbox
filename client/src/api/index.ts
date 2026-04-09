@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = import.meta.env.NODE_ENV === 'development' ? 'http://localhost:5820/api' : 'https://sendbox-api.saehyeon.kr';
+const API_URL = import.meta.env.MODE === 'development' ? 'http://localhost:5820/api' : 'https://sendbox-api.saehyeon.kr/api';
 
 // axios 타임아웃ms (10시간)
 const LONG_TIMEOUT = 10 * 60 * 60 * 1000;

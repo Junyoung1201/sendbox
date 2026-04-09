@@ -17,8 +17,10 @@ export default function UploadMobile() {
         error,
         peerDownloadProgress,
         peerDownloadComplete,
+        peerDownloadInterrupted,
         keyCopied,
         handleClose,
+        handleDownloadInterruptedClose,
         handleCancelUpload,
         handleCancelShare,
         handleCopyKey,
@@ -46,6 +48,19 @@ export default function UploadMobile() {
     /*  결과 화면 (파일)  */
     const FileResultPanel = () => {
         if (!result) return null;
+        if (peerDownloadInterrupted) {
+            return (
+                <div className="m-result">
+                    <svg className="m-interrupted-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
+                        <path d="M12 7v6" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                        <circle cx="12" cy="16.5" r="1" fill="currentColor"/>
+                    </svg>
+                    <p className="m-interrupted-title">다운로드가 중단되었어요.</p>
+                    <button className="m-btn m-btn-secondary" onClick={handleDownloadInterruptedClose}>닫기</button>
+                </div>
+            );
+        }
         if (peerDownloadComplete) {
             return (
                 <div className="m-result">
@@ -57,18 +72,18 @@ export default function UploadMobile() {
         }
         return (
             <div className="m-result">
-                <p className="m-result-label">{keyCopied ? '복사됨 ✓' : '다운로드 키 (탭하여 복사)'}</p>
+                <p className="m-result-label">{keyCopied ? '복사됨' : '다운로드 키 (탭하여 복사)'}</p>
                 <KeyDigits fileKey={result.fileKey} />
                 <p className="m-expires">만료: {new Date(result.expiresAt).toLocaleString()}</p>
                 {peerDownloadProgress > 0 ? (
                     <>
-                        <p className="m-wait-text">상대방 다운로드 중... {peerDownloadProgress}%</p>
+                        <p className="m-wait-text">상대방 다운로드 중.. {peerDownloadProgress}%</p>
                         <div className="m-progress-bar">
                             <div className="m-progress-fill" style={{ width: `${peerDownloadProgress}%` }} />
                         </div>
                     </>
                 ) : (
-                    <p className="m-wait-text">상대방의 다운로드를 기다리는 중...</p>
+                    <p className="m-wait-text">상대방의 다운로드를 기다리는 중..</p>
                 )}
                 {peerDownloadProgress === 0 && (
                     <button className="m-btn m-btn-danger" onClick={handleCancelShare}>공유 중단</button>
@@ -80,6 +95,19 @@ export default function UploadMobile() {
     /*  결과 화면 (텍스트/URL)  */
     const TextUrlResultPanel = () => {
         if (!result) return null;
+        if (peerDownloadInterrupted) {
+            return (
+                <div className="m-result">
+                    <svg className="m-interrupted-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
+                        <path d="M12 7v6" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                        <circle cx="12" cy="16.5" r="1" fill="currentColor"/>
+                    </svg>
+                    <p className="m-interrupted-title">다운로드가 중단되었어요.</p>
+                    <button className="m-btn m-btn-secondary" onClick={handleDownloadInterruptedClose}>닫기</button>
+                </div>
+            );
+        }
         if (peerDownloadComplete) {
             return (
                 <div className="m-result">
@@ -92,7 +120,7 @@ export default function UploadMobile() {
         }
         return (
             <div className="m-result">
-                <p className="m-result-label">{keyCopied ? '복사됨 ✓' : '다운로드 키 (탭하여 복사)'}</p>
+                <p className="m-result-label">{keyCopied ? '복사됨' : '다운로드 키 (탭하여 복사)'}</p>
                 <KeyDigits fileKey={result.fileKey} />
                 <p className="m-expires">만료: {new Date(result.expiresAt).toLocaleString()}</p>
                 <p className="m-wait-text">상대방의 다운로드를 기다리는 중...</p>

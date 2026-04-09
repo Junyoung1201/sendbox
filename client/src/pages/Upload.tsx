@@ -34,6 +34,7 @@ export default function Upload() {
     const [error, setError] = useState<string | null>(null);
     const [peerDownloadProgress, setPeerDownloadProgress] = useState(0);
     const [peerDownloadComplete, setPeerDownloadComplete] = useState(false);
+    const [peerDownloadInterrupted, setPeerDownloadInterrupted] = useState(false);
     const [keyCopied, setKeyCopied] = useState(false);
     const [currentFileId, setCurrentFileId] = useState<number | null>(null);
     const [uploadAbortController, setUploadAbortController] = useState<AbortController | null>(null);
@@ -50,6 +51,12 @@ export default function Upload() {
             (data) => {
                 console.log('파일 다운로드됨:', data);
                 setPeerDownloadComplete(true);
+                setPeerDownloadInterrupted(false);
+            },
+            () => {
+                if (!peerDownloadComplete) {
+                    setPeerDownloadInterrupted(true);
+                }
             }
         );
 
@@ -92,10 +99,16 @@ export default function Upload() {
         setFile(null);
         setPeerDownloadProgress(0);
         setPeerDownloadComplete(false);
+        setPeerDownloadInterrupted(false);
         setKeyCopied(false);
         setError(null);
         setCurrentFileId(null);
         setUploadAbortController(null);
+    };
+
+    const handleDownloadInterruptedClose = () => {
+        setPeerDownloadInterrupted(false);
+        setPeerDownloadProgress(0);
     };
 
     const handleCancelUpload = async () => {
@@ -247,7 +260,7 @@ export default function Upload() {
                     return;
                 }
 
-                const CHUNK_SIZE = 500 * 1024 * 1024; // 500MB
+                const CHUNK_SIZE = 90 * 1024 * 1024; // 90MB (Cloudflare 무료 플랜 100MB 제한 고려)
                 const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
 
                 if (isEncrypted && encryptionKey) {
@@ -442,7 +455,19 @@ export default function Upload() {
                 {/* 텍스트/URL 업로드 완료 시 폼 전체를 가리는 패널 */}
                 {result && uploadType !== 'file' ? (
                     <div className="text-url-result-overlay">
-                        {peerDownloadComplete ? (
+                        {peerDownloadInterrupted ? (
+                            <div className="download-interrupted-panel">
+                                <svg className="interrupted-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
+                                    <path d="M12 7v6" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                                    <circle cx="12" cy="16.5" r="1" fill="currentColor"/>
+                                </svg>
+                                <p className="interrupted-text">다운로드가 중단되었어요.</p>
+                                <button type="button" className="btn btn-secondary download-complete-close-btn" onClick={handleDownloadInterruptedClose}>
+                                    닫기
+                                </button>
+                            </div>
+                        ) : peerDownloadComplete ? (
                             <div className="download-complete-panel">
                                 <svg className="check-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
@@ -498,7 +523,19 @@ export default function Upload() {
                                 <div className="file-upload-area">
                                     {result ? (
                                 <div className="upload-result-panel">
-                                    {peerDownloadComplete ? (
+                                    {peerDownloadInterrupted ? (
+                                        <div className="download-interrupted-panel">
+                                            <svg className="interrupted-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
+                                                <path d="M12 7v6" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                                                <circle cx="12" cy="16.5" r="1" fill="currentColor"/>
+                                            </svg>
+                                            <p className="interrupted-text">다운로드가 중단되었어요.</p>
+                                            <button type="button" className="btn btn-secondary download-complete-close-btn" onClick={handleDownloadInterruptedClose}>
+                                                닫기
+                                            </button>
+                                        </div>
+                                    ) : peerDownloadComplete ? (
                                         <div className="download-complete-panel">
                                             <svg className="check-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                 <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>

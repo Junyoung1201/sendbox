@@ -81,7 +81,7 @@ export async function decryptText(
     return decoder.decode(decryptedData);
 }
 
-// array buffer를 base64로 변환
+// array buffer -> base64 변환
 export function arrayBufferToBase64(buffer: ArrayBuffer): string {
     const bytes = new Uint8Array(buffer);
     let binary = '';
@@ -97,7 +97,7 @@ export function arrayBufferToBase64(buffer: ArrayBuffer): string {
     return btoa(binary);
 }
 
-// Base64를 ArrayBuffer로 변환
+// base64 -> array buffer 변환
 export function base64ToArrayBuffer(base64: string): ArrayBuffer {
     const binaryString = atob(base64);
     const bytes = new Uint8Array(binaryString.length);
@@ -109,7 +109,7 @@ export function base64ToArrayBuffer(base64: string): ArrayBuffer {
     return bytes.buffer;
 }
 
-// 비밀번호로부터 암호화 키 유도 (PBKDF2)
+// 비밀번호로부터 암호화 키 유도
 export async function deriveKeyFromPassword(
     password: string,
     salt?: Uint8Array
@@ -117,6 +117,13 @@ export async function deriveKeyFromPassword(
     key: CryptoKey;
     salt: string;
 }> {
+
+    // salt가 없으면 랜덤 생성
+    const resolvedSalt = (
+        salt
+            ? new Uint8Array(salt.buffer instanceof ArrayBuffer ? salt.buffer : salt.buffer.slice(0))
+            : crypto.getRandomValues(new Uint8Array(16))
+    ) as Uint8Array<ArrayBuffer>;
 
     // 비밀번호를 키 material로 변환
     const encoder = new TextEncoder();
@@ -134,8 +141,7 @@ export async function deriveKeyFromPassword(
     const key = await crypto.subtle.deriveKey(
         {
             name: 'PBKDF2',
-            //@ts-ignore
-            salt,
+            salt: resolvedSalt,
             iterations: 100000,
             hash: 'SHA-256',
         },
@@ -150,7 +156,7 @@ export async function deriveKeyFromPassword(
     
     return {
         key,
-        salt: btoa(String.fromCharCode(...(salt as Uint8Array))),
+        salt: btoa(String.fromCharCode(...resolvedSalt)),
     };
 }
 

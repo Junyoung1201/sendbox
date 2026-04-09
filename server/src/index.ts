@@ -22,13 +22,17 @@ const io = new Server(server, {
     }
 });
 
-// Middleware
+// 다운로더 소켓 추적 (fileKey -> socketId)
+export const downloaderSockets = new Map<string, string>();
+
 app.use(cors({
     origin: corsOrigin,
     credentials: true
 }));
-app.use(express.json({ limit: '50mb' })); // JSON 페이로드 크기 제한 증가
-app.use(express.urlencoded({ extended: true, limit: '50mb' })); // URL-encoded 페이로드 크기 제한 증가
+
+// express 페이로드 제한 증가
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 app.use(cookieParser());
 
 //
@@ -60,9 +64,27 @@ io.on('connection', (socket) => {
         console.log(`클라이언트 ${socket.id}가 room file-${fileKey}에서 나감`);
     });
 
+    // 다운로더 등록 (다운로드 시작 시 다운로더 측에서 emit)
+    socket.on('register-downloader', (fileKey: string) => {
+        downloaderSockets.set(fileKey, socket.id);
+        socket.join(`file-${fileKey}`);
+        console.log(`다운로더 ${socket.id}가 file-${fileKey} 등록`);
+    });
+
     // 연결해제 헨들러
     socket.on('disconnect', () => {
+        
         console.log('클라이언트 연결 해제:', socket.id);
+
+        // 다운로더였다면 업로더에게 중단 알림
+        for (const [fileKey, socketId] of downloaderSockets.entries()) {
+            if (socketId === socket.id) {
+                downloaderSockets.delete(fileKey);
+                io.to(`file-${fileKey}`).emit('download-interrupted', { fileKey });
+                console.log(`다운로더 연결 해제: file-${fileKey} 중단 알림`);
+                break;
+            }
+        }
     });
 
     // 파일 업로드 헨들러
@@ -90,7 +112,7 @@ startCleanupInterval();
 //
 server.timeout = Envs.serverTimeoutMs;
 server.keepAliveTimeout = Envs.serverTimeoutMs;
-server.headersTimeout = Envs.serverTimeoutMs + 1000; // timeout보다 약간 더 길게
+server.headersTimeout = Envs.serverTimeoutMs + 1000; // <-- timeout보다 약간 더 길게
 
 server.listen(process.env.PORT, () => {
     console.clear();
