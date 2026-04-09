@@ -6,7 +6,7 @@ import App from './App';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
     <Provider store={store}>
-        <BrowserRouter>
+        <BrowserRouter basename='/sendbox/'>
             <App />
         </BrowserRouter>
     </Provider>
